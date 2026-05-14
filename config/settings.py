@@ -31,10 +31,12 @@ SECRET_KEY = "django-insecure-5dz)8sofl$^1y37@enif@6zbil9#g*34d)l@kyouf)^!joj4r(
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = os.getenv(
-    "ALLOWED_HOSTS",
-    "localhost,127.0.0.1"
-).split(",")
+ALLOWED_HOSTS = [
+    "localhost",
+    "127.0.0.1",
+    "trainforge-backend-production.up.railway.app",
+    ".up.railway.app",
+]
 
 
 # Application definition
