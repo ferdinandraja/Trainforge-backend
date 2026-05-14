@@ -186,36 +186,56 @@ class AITrainingPlanView(APIView):
     permission_classes = [IsTrainer]
 
     def post(self, request):
-        goal = request.data.get("goal", "")
-        experience = request.data.get("experience", "")
-        limitations = request.data.get("limitations", "")
-        focus = request.data.get("focus", "")
+        try:
+            goal = request.data.get("goal", "")
+            experience = request.data.get("experience", "")
+            limitations = request.data.get("limitations", "")
+            focus = request.data.get("focus", "")
 
-        client = OpenAI(api_key=settings.OPENAI_API_KEY)
+            if not settings.OPENAI_API_KEY:
+                return Response(
+                    {"error": "OPENAI_API_KEY is not configured."},
+                    status=500
+                )
 
-        prompt = f"""
-        Create a safe personal training plan.
+            client = OpenAI(api_key=settings.OPENAI_API_KEY)
 
-        Goal: {goal}
-        Experience: {experience}
-        Limitations: {limitations}
-        Focus: {focus}
+            prompt = f"""
+            Create a safe personal training plan.
 
-        Include:
-        - workouts
-        - exercises
-        - sets
-        - reps
-        - rest times
-        - trainer notes
-        """
+            Goal: {goal}
+            Experience: {experience}
+            Limitations: {limitations}
+            Focus: {focus}
 
-        response = client.responses.create(
-            model="gpt-5.4-mini",
-            input=prompt,
-        )
+            Include:
+            - workouts
+            - exercises
+            - sets
+            - reps
+            - rest times
+            - trainer notes
 
-        return Response({"suggestion": response.output_text})
+            Responsible AI rules:
+            - Do not provide medical diagnosis.
+            - Mention trainer review is required.
+            - Avoid unsafe extreme advice.
+            """
+
+            response = client.responses.create(
+                model="gpt-5.4-mini",
+                input=prompt,
+            )
+
+            return Response({
+                "suggestion": response.output_text
+            })
+
+        except Exception as e:
+            return Response(
+                {"error": str(e)},
+                status=500
+            )
 
 
 class SubscriptionViewSet(viewsets.ModelViewSet):
