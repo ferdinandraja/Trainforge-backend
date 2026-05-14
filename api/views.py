@@ -9,6 +9,7 @@ from .models import Subscription
 from .serializers import SubscriptionSerializer
 from rest_framework.decorators import action
 from .permissions import IsAdminUserOnly
+import traceback
 
 from .models import (
     Client,
@@ -232,6 +233,10 @@ class AITrainingPlanView(APIView):
             })
 
         except Exception as e:
+            print("AI TRAINING PLAN ERROR:")
+            print(str(e))
+            traceback.print_exc()
+
             return Response(
                 {"error": str(e)},
                 status=500
