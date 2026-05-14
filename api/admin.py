@@ -4,10 +4,7 @@ from .models import Subscription
 
 @admin.action(description="Archive selected subscriptions")
 def archive_subscriptions(modeladmin, request, queryset):
-    queryset.update(
-        is_archived=True,
-        status="archived"
-    )
+    queryset.update(is_archived=True, status="archived")
 
 
 @admin.register(Subscription)

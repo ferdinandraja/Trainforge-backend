@@ -8,8 +8,4 @@ class IsTrainer(BasePermission):
 
 class IsAdminUserOnly(BasePermission):
     def has_permission(self, request, view):
-        return (
-            request.user
-            and request.user.is_authenticated
-            and request.user.is_staff
-        )
+        return request.user and request.user.is_authenticated and request.user.is_staff

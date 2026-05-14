@@ -71,9 +71,7 @@ class ClientViewSet(viewsets.ModelViewSet):
     permission_classes = [IsTrainer]
 
     def get_queryset(self):
-        return Client.objects.filter(
-            trainer=self.request.user
-        ).order_by("-created_at")
+        return Client.objects.filter(trainer=self.request.user).order_by("-created_at")
 
     def perform_create(self, serializer):
         serializer.save(trainer=self.request.user)
@@ -85,9 +83,7 @@ class ProgramViewSet(viewsets.ModelViewSet):
     permission_classes = [IsTrainer]
 
     def get_queryset(self):
-        return Program.objects.filter(
-            trainer=self.request.user
-        ).order_by("-created_at")
+        return Program.objects.filter(trainer=self.request.user).order_by("-created_at")
 
     def perform_create(self, serializer):
         serializer.save(trainer=self.request.user)
@@ -99,9 +95,7 @@ class WorkoutViewSet(viewsets.ModelViewSet):
     permission_classes = [IsTrainer]
 
     def get_queryset(self):
-        queryset = Workout.objects.filter(
-            program__trainer=self.request.user
-        )
+        queryset = Workout.objects.filter(program__trainer=self.request.user)
 
         program_id = self.request.query_params.get("program")
 
@@ -127,15 +121,16 @@ class WorkoutExerciseViewSet(viewsets.ModelViewSet):
             workout__program__trainer=self.request.user
         )
 
+
 class AppointmentViewSet(viewsets.ModelViewSet):
     queryset = Appointment.objects.all()
     serializer_class = AppointmentSerializer
     permission_classes = [IsTrainer]
 
     def get_queryset(self):
-        return Appointment.objects.filter(
-            trainer=self.request.user
-        ).order_by("appointment_date", "appointment_time")
+        return Appointment.objects.filter(trainer=self.request.user).order_by(
+            "appointment_date", "appointment_time"
+        )
 
     def perform_create(self, serializer):
         serializer.save(trainer=self.request.user)
@@ -147,9 +142,9 @@ class ClientProgressViewSet(viewsets.ModelViewSet):
     permission_classes = [IsTrainer]
 
     def get_queryset(self):
-        queryset = ClientProgress.objects.filter(
-            trainer=self.request.user
-        ).order_by("-recorded_at")
+        queryset = ClientProgress.objects.filter(trainer=self.request.user).order_by(
+            "-recorded_at"
+        )
 
         client_id = self.request.query_params.get("client")
 
@@ -168,9 +163,9 @@ class ExerciseProgressViewSet(viewsets.ModelViewSet):
     permission_classes = [IsTrainer]
 
     def get_queryset(self):
-        queryset = ExerciseProgress.objects.filter(
-            trainer=self.request.user
-        ).order_by("-recorded_at")
+        queryset = ExerciseProgress.objects.filter(trainer=self.request.user).order_by(
+            "-recorded_at"
+        )
 
         client_id = self.request.query_params.get("client")
         exercise_id = self.request.query_params.get("exercise")
@@ -185,6 +180,7 @@ class ExerciseProgressViewSet(viewsets.ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(trainer=self.request.user)
+
 
 class AITrainingPlanView(APIView):
     permission_classes = [IsTrainer]
@@ -219,10 +215,9 @@ class AITrainingPlanView(APIView):
             input=prompt,
         )
 
-        return Response({
-            "suggestion": response.output_text
-        })
-    
+        return Response({"suggestion": response.output_text})
+
+
 class SubscriptionViewSet(viewsets.ModelViewSet):
     queryset = Subscription.objects.all()
     serializer_class = SubscriptionSerializer
@@ -235,17 +230,19 @@ class SubscriptionViewSet(viewsets.ModelViewSet):
         subscription.status = "archived"
         subscription.save()
 
-        return Response({
-            "message": "Subscription archived"
-        })
+        return Response({"message": "Subscription archived"})
+
+
 class MeView(APIView):
     permission_classes = [IsTrainer]
 
     def get(self, request):
-        return Response({
-            "id": request.user.id,
-            "username": request.user.username,
-            "email": request.user.email,
-            "is_staff": request.user.is_staff,
-            "is_superuser": request.user.is_superuser,
-        })
+        return Response(
+            {
+                "id": request.user.id,
+                "username": request.user.username,
+                "email": request.user.email,
+                "is_staff": request.user.is_staff,
+                "is_superuser": request.user.is_superuser,
+            }
+        )

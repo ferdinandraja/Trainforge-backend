@@ -2,44 +2,37 @@ from django.contrib.auth.models import AbstractUser
 from django.db import models
 
 from django.contrib.auth.models import User
+
+
 class User(AbstractUser):
     ROLE_CHOICES = (
-        ('user', 'User'),
-        ('trainer', 'Trainer'),
-        ('admin', 'Admin'),
+        ("user", "User"),
+        ("trainer", "Trainer"),
+        ("admin", "Admin"),
     )
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default='user')
+    role = models.CharField(max_length=10, choices=ROLE_CHOICES, default="user")
 
 
 class TrainerProfile(models.Model):
-    user = models.OneToOneField(
-        User,
-        on_delete=models.CASCADE
-    )
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
 
     full_name = models.CharField(max_length=255)
 
-    specialization = models.CharField(
-        max_length=255
-    )
+    specialization = models.CharField(max_length=255)
 
-    experience_years = models.IntegerField(
-        default=0
-    )
+    experience_years = models.IntegerField(default=0)
 
     bio = models.TextField(blank=True)
 
-    created_at = models.DateTimeField(
-        auto_now_add=True
-    )
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
         return self.full_name
+
+
 class Client(models.Model):
     trainer = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="managed_clients"
+        User, on_delete=models.CASCADE, related_name="managed_clients"
     )
     full_name = models.CharField(max_length=255)
     age = models.IntegerField()
@@ -49,19 +42,19 @@ class Client(models.Model):
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
 
+
 class Program(models.Model):
-    trainer = models.ForeignKey(User,on_delete=models.CASCADE)
+    trainer = models.ForeignKey(User, on_delete=models.CASCADE)
     preferred_appointment_times = models.CharField(max_length=255)
     title = models.CharField(max_length=255)
     description = models.TextField()
     start_date = models.DateField()
     created_at = models.DateTimeField(auto_now_add=True)
-    client = models.ForeignKey(
-    Client,
-    on_delete=models.CASCADE
-)
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
+
     def __str__(self):
         return self.title
+
 
 class Event(models.Model):
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -69,11 +62,15 @@ class Event(models.Model):
     start = models.DateTimeField()
     end = models.DateTimeField()
 
+
 class Workout(models.Model):
-    program = models.ForeignKey(Program,on_delete=models.CASCADE,related_name="workouts")
+    program = models.ForeignKey(
+        Program, on_delete=models.CASCADE, related_name="workouts"
+    )
     name = models.CharField(max_length=255)
     day = models.CharField(max_length=100)
     notes = models.TextField(blank=True)
+
     def __str__(self):
         return self.name
 
@@ -81,34 +78,34 @@ class Workout(models.Model):
 class Exercise(models.Model):
     name = models.CharField(max_length=255)
     description = models.TextField(blank=True)
+
     def __str__(self):
         return self.name
 
 
 class WorkoutExercise(models.Model):
-    workout = models.ForeignKey(Workout,on_delete=models.CASCADE,related_name="workout_exercises")
-    exercise = models.ForeignKey(Exercise,on_delete=models.CASCADE)
+    workout = models.ForeignKey(
+        Workout, on_delete=models.CASCADE, related_name="workout_exercises"
+    )
+    exercise = models.ForeignKey(Exercise, on_delete=models.CASCADE)
     sets = models.IntegerField()
     reps = models.IntegerField()
     rest_seconds = models.IntegerField(default=60)
     notes = models.TextField(blank=True)
+
     def __str__(self):
-        return (
-            f"{self.exercise.name} - "
-            f"{self.sets}x{self.reps}"
-        )
+        return f"{self.exercise.name} - " f"{self.sets}x{self.reps}"
+
 
 class TrainerClient(models.Model):
-    trainer = models.ForeignKey(User, on_delete=models.CASCADE, related_name='trainer')
-    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name='client')
+    trainer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="trainer")
+    client = models.ForeignKey(User, on_delete=models.CASCADE, related_name="client")
+
 
 class Appointment(models.Model):
     trainer = models.ForeignKey(User, on_delete=models.CASCADE)
 
-    client = models.ForeignKey(
-        Client,
-        on_delete=models.CASCADE
-    )
+    client = models.ForeignKey(Client, on_delete=models.CASCADE)
 
     title = models.CharField(max_length=255)
     appointment_date = models.DateField()
@@ -116,7 +113,8 @@ class Appointment(models.Model):
     duration_minutes = models.IntegerField(default=60)
     notes = models.TextField(blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
-    
+
+
 class ClientProgress(models.Model):
     trainer = models.ForeignKey(User, on_delete=models.CASCADE)
     client = models.ForeignKey(Client, on_delete=models.CASCADE)
@@ -130,7 +128,7 @@ class ClientProgress(models.Model):
 
     def __str__(self):
         return f"{self.client.full_name} progress"
-    
+
 
 class ExerciseProgress(models.Model):
     trainer = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -147,7 +145,8 @@ class ExerciseProgress(models.Model):
 
     def __str__(self):
         return f"{self.client.full_name} - {self.exercise.name}"
-    
+
+
 class Subscription(models.Model):
     PLAN_CHOICES = (
         ("starter", "Starter"),
@@ -163,26 +162,14 @@ class Subscription(models.Model):
     )
 
     trainer = models.ForeignKey(
-        User,
-        on_delete=models.CASCADE,
-        related_name="subscriptions"
+        User, on_delete=models.CASCADE, related_name="subscriptions"
     )
 
-    plan_name = models.CharField(
-        max_length=50,
-        choices=PLAN_CHOICES
-    )
+    plan_name = models.CharField(max_length=50, choices=PLAN_CHOICES)
 
-    status = models.CharField(
-        max_length=50,
-        choices=STATUS_CHOICES,
-        default="active"
-    )
+    status = models.CharField(max_length=50, choices=STATUS_CHOICES, default="active")
 
-    monthly_price = models.DecimalField(
-        max_digits=8,
-        decimal_places=2
-    )
+    monthly_price = models.DecimalField(max_digits=8, decimal_places=2)
 
     start_date = models.DateField()
     end_date = models.DateField(null=True, blank=True)
